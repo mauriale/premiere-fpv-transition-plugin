@@ -1,0 +1,37 @@
+{
+  "name": "premiere-fpv-transition-plugin",
+  "version": "1.0.0",
+  "description": "Adobe Premiere Pro plugin for immersive FPV drone-style transitions",
+  "main": "src/cep-panel/index.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "package": "zxpSignCmd -selfSignedCert NA NA NA NA NA ./dist/fpv-transition.zxp",
+    "lint": "eslint src/cep-panel/**/*.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "adobe",
+    "premiere",
+    "plugin",
+    "fpv",
+    "drone",
+    "3d",
+    "transition"
+  ],
+  "author": "Mauriale",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.150.0",
+    "mercury-sdk": "^0.9.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4",
+    "eslint": "^8.44.0",
+    "jest": "^29.5.0",
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "babel-loader": "^9.1.2"
+  }
+}
