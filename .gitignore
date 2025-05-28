@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# Node.js / CEP
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# Adobe CEP
+*.zxp
+*.jsx.log
+.debug
+CSXS/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+output/
+temp/
+cache/
+*.mp4
+*.mov
+*.avi
+!docs/examples/*.mp4
+
+# AI Models
+models/
+*.pth
+*.onnx
+!models/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Documentation
+docs/_build/
+*.pdf
