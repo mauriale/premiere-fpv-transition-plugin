@@ -1,14 +1,9 @@
 # Python dependencies for Premiere FPV Transition Plugin
 
 # Core 3D processing
-opencv-contrib-python==4.7.0
+opencv-contrib-python==4.8.1.78
 numpy==1.24.3
 scipy==1.10.1
-
-# AI frame interpolation
-torch==2.0.1+cu117
-torchvision==0.15.2+cu117
-rife==1.5.0
 
 # Backend server
 flask==2.3.2
@@ -20,7 +15,6 @@ tqdm==4.65.0
 
 # Communication with Premiere
 websocket-client==1.5.1
-jsonrpc==3.0.0
 
 # Development
 pytest==7.3.1
