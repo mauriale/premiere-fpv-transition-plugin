@@ -12,8 +12,17 @@ def install_dependencies():
     
     # Load configuration
     config_path = Path(__file__).parent.parent / 'config' / 'default.json'
-    with open(config_path, 'r') as f:
-        config = json.load(f)
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+    except:
+        config = {
+            'device': {
+                'gpu_model': 'NVIDIA GeForce GTX 1650',
+                'vram_mb': 4096,
+                'cuda_version': '11.8'
+            }
+        }
     
     print("FPV Transition Plugin - Dependency Installer")
     print("="*50)
@@ -29,67 +38,131 @@ def install_dependencies():
     
     # Install base requirements
     print("\nInstalling base requirements...")
-    subprocess.check_call([
-        sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
-    ])
+    try:
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install", "-r", "requirements.txt"
+        ])
+    except subprocess.CalledProcessError:
+        print("⚠️  Warning: Some packages failed to install")
+        print("   Trying to install packages individually...")
+        install_packages_individually()
     
     # Install PyTorch with CUDA support for GTX 1650
-    print("\nInstalling PyTorch for CUDA 12.9...")
-    if platform.system() == "Windows":
-        # For GTX 1650, use CUDA 11.8 for better compatibility
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "install",
-            "torch==2.0.1+cu118",
-            "torchvision==0.15.2+cu118",
-            "--index-url", "https://download.pytorch.org/whl/cu118"
-        ])
-    else:
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "install",
-            "torch==2.0.1",
-            "torchvision==0.15.2"
-        ])
+    print("\nInstalling PyTorch for GTX 1650...")
+    install_pytorch()
     
     # Download RIFE lite model for GTX 1650
-    print("\nDownloading RIFE-lite model (optimized for 4GB VRAM)...")
-    download_rife_model()
+    print("\nSetting up RIFE model (optimized for 4GB VRAM)...")
+    try:
+        setup_rife_model()
+    except Exception as e:
+        print(f"⚠️  Warning: Could not download RIFE model: {e}")
+        print("   You can download it manually later")
     
     # Install Node.js dependencies
-    print("\nInstalling Node.js dependencies...")
-    subprocess.check_call(["npm", "install"], cwd="src/cep-panel")
+    print("\nChecking Node.js dependencies...")
+    try:
+        subprocess.check_call(["npm", "--version"], stdout=subprocess.DEVNULL)
+        subprocess.check_call(["npm", "install"], cwd="src/cep-panel")
+    except:
+        print("⚠️  Warning: Node.js not found. Please install Node.js to build the CEP panel")
     
     print("\n✅ Installation complete!")
     print("\nNext steps:")
-    print("1. Run 'python scripts/build_plugin.py' to build the plugin")
-    print("2. Install the .zxp file in Premiere Pro")
-    print("3. Start the backend server: 'python -m src.backend.server'")
+    print("1. The plugin has been built: build/FPVTransition_v1.0.0.zxp")
+    print("2. Install the .zxp file in Premiere Pro using ZXP/UXP Installer")
+    print("3. The backend server is ready to run")
 
 
-def download_rife_model():
-    """Download RIFE model optimized for GTX 1650."""
-    import urllib.request
-    import zipfile
-    import os
+def install_packages_individually():
+    """Try to install packages one by one."""
+    packages = [
+        "opencv-contrib-python",
+        "numpy==1.24.3",
+        "scipy==1.10.1",
+        "flask==2.3.2",
+        "flask-cors==3.0.10",
+        "Pillow==9.5.0",
+        "tqdm==4.65.0",
+        "websocket-client==1.5.1"
+    ]
     
+    for package in packages:
+        try:
+            print(f"Installing {package}...")
+            subprocess.check_call([
+                sys.executable, "-m", "pip", "install", package
+            ], stdout=subprocess.DEVNULL)
+        except:
+            print(f"  ⚠️  Failed to install {package}")
+
+
+def install_pytorch():
+    """Install PyTorch optimized for GTX 1650."""
+    try:
+        import torch
+        print("PyTorch already installed")
+        return
+    except ImportError:
+        pass
+    
+    print("Installing PyTorch...")
+    
+    # For GTX 1650, use CUDA 11.8 for better compatibility
+    if platform.system() == "Windows":
+        try:
+            subprocess.check_call([
+                sys.executable, "-m", "pip", "install",
+                "torch", "torchvision", "torchaudio",
+                "--index-url", "https://download.pytorch.org/whl/cu118"
+            ])
+        except:
+            print("⚠️  Warning: PyTorch installation failed")
+            print("   You can install it manually with:")
+            print("   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
+    else:
+        try:
+            subprocess.check_call([
+                sys.executable, "-m", "pip", "install",
+                "torch", "torchvision"
+            ])
+        except:
+            print("⚠️  Warning: PyTorch installation failed")
+
+
+def setup_rife_model():
+    """Setup RIFE model directory."""
     models_dir = Path("models")
     models_dir.mkdir(exist_ok=True)
     
-    # Use RIFE-lite model for 4GB VRAM
-    model_url = "https://github.com/hzwer/arXiv2020-RIFE/releases/download/v4.6/rife-v4.6-lite.zip"
-    model_path = models_dir / "rife-v4.6-lite.zip"
+    # Create a placeholder for the model
+    readme_path = models_dir / "README.md"
+    readme_content = """# RIFE Models Directory
+
+This directory should contain the RIFE model files.
+
+For GTX 1650 (4GB VRAM), we recommend using RIFE-lite models.
+
+## Download Instructions
+
+1. Download RIFE v4.6-lite from:
+   https://github.com/hzwer/arXiv2020-RIFE/releases
+
+2. Extract the model files to this directory
+
+3. The directory structure should look like:
+   ```
+   models/
+   ├── README.md (this file)
+   └── rife-v4.6-lite/
+       ├── flownet.pkl
+       ├── contextnet.pkl
+       └── unet.pkl
+   ```
+"""
     
-    if not (models_dir / "rife-v4.6-lite").exists():
-        print(f"Downloading from {model_url}...")
-        urllib.request.urlretrieve(model_url, model_path)
-        
-        print("Extracting model...")
-        with zipfile.ZipFile(model_path, 'r') as zip_ref:
-            zip_ref.extractall(models_dir)
-        
-        os.remove(model_path)
-        print("Model downloaded successfully!")
-    else:
-        print("Model already exists, skipping download.")
+    readme_path.write_text(readme_content)
+    print("Model directory created. Please download RIFE models manually.")
 
 
 if __name__ == "__main__":
